@@ -1,9 +1,11 @@
 import React from 'react';
 import { useLoaderData, Link } from 'react-router-dom';
 import { formatRupiah } from '../utils/formatCurrency';
+import { useAuth } from '../context/AuthContext';
 
 export default function Detail() {
     const { product } = useLoaderData();
+    const { user } = useAuth()
 
     return (
         <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md border border-gray-100 my-12">
@@ -25,9 +27,11 @@ export default function Detail() {
                 <Link to="/" className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2.5 rounded-lg font-medium transition">
                     Back to List
                 </Link>
-                <Link to={`/products/${product.product_slug}/edit`} className="bg-amber-800 hover:bg-amber-900 text-white px-6 py-2.5 rounded-lg font-medium transition">
-                    Edit
-                </Link>
+                {user?.role === 'admin' && (
+                    <Link to={`/products/${product.product_slug}/edit`} className="bg-amber-800 hover:bg-amber-900 text-white px-6 py-2.5 rounded-lg font-medium transition">
+                        Edit
+                    </Link>
+                )}
             </div>
         </div>
     );

@@ -2,16 +2,23 @@ const express = require('express');
 const cors = require('cors');
 const { z } = require('zod');
 const pool = require('./db');
+const { router: authRouter, requireAuth, requireRole, csrfGuard } = require('./auth');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
+app.set('trust proxy', 1); // wajib bila di belakang proxy/hosting agar cookie Secure bekerja
+
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Token-Mode'],
+    credentials: true,
 }));
 app.use(express.json());
+app.use(cookieParser());
+app.use(csrfGuard);
+app.use('/api/auth', authRouter);
 
 const productSchema = z.object({
     product_name: z.string({ message: "Product name is required." })

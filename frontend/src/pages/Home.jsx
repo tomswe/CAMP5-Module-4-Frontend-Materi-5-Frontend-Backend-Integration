@@ -2,11 +2,15 @@ import React from 'react';
 import { Link, useLoaderData, useRevalidator } from 'react-router-dom';
 import { useCoffee } from '../context/CoffeeContext.jsx';
 import { formatRupiah } from '../utils/formatCurrency.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Home() {
     const { products } = useLoaderData();
     const { deleteProduct } = useCoffee();
     const revalidator = useRevalidator();
+
+    const { user } = useAuth()
+    const isAdmin = user?.role === 'admin'
 
     const handleDelete = async (p) => {
         if (!window.confirm(`Delete "${p.product_name}"?`)) return;
@@ -40,15 +44,22 @@ export default function Home() {
                             <Link to={`/products/${p.product_slug}`} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 text-center py-2 rounded-lg text-sm font-medium transition">
                                 View
                             </Link>
-                            <Link to={`/products/${p.product_slug}/edit`} className="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-800 text-center py-2 rounded-lg text-sm font-medium transition">
-                                Edit
-                            </Link>
-                            <button
-                                onClick={() => handleDelete(p)}
-                                className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 text-center py-2 rounded-lg text-sm font-medium transition"
-                            >
-                                Delete
-                            </button>
+
+                            {isAdmin && (
+                                <>
+                                    <Link to={`/products/${p.product_slug}/edit`} className="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-800 text-center py-2 rounded-lg text-sm font-medium transition">
+                                        Edit
+                                    </Link>
+
+                                    <button
+                                        onClick={() => handleDelete(p)}
+                                        className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 text-center py-2 rounded-lg text-sm font-medium transition"
+                                    >
+                                        Delete
+                                    </button>
+                                </>
+                            )}
+
                         </div>
                     </div>
                 ))}
